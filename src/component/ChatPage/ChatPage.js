@@ -23,8 +23,7 @@ const ChatPage = () => {
         id: conversationId,
         type: 'PRIVATE',
         name: 'zoan',
-        lastMessageDTO: exampleChatMessage,
-        lastTimeAgo: 'few seconds ago'
+        lastMessageDTO: exampleChatMessage
     };
 
     const [curConverstaion, setCurConverstaion] = useState(exampleConversation);
@@ -59,7 +58,11 @@ const ChatPage = () => {
     const onSendMessage = (newChatMessage) => {
         setChatMessages((prevChatMessages) =>
             [...prevChatMessages, newChatMessage]);
-    }
+    };
+
+    const handleConversationItemClick = (conversation) => {
+        console.log(conversation);
+    };
 
     return (
         <div className="flex flex-wrap">
@@ -69,7 +72,9 @@ const ChatPage = () => {
                     <ConversationSearchBar/>
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                    <ConversationList/>
+                    <ConversationList
+                        handleConversationItemClick={handleConversationItemClick}
+                    />
                     {/*<ConversationItem*/}
                     {/*    conversation={exampleConversation}*/}
                     {/*    onlineUsernames={[]}*/}

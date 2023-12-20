@@ -1,31 +1,44 @@
-import ConversationItem from "./ConversationItem";
 import LoadingSpinner from "../LoadingSpinner";
+import {useEffect, useState} from "react";
+import ConversationItem from "./ConversationItem";
 
-const ConversationList = ({conversations, onlineUsernames, handleConversationItemClick}) => {
+const ConversationList = ({ handleConversationItemClick }) => {
 
-    const hide = true;
+    const [conversations, setConversations] = useState([]);
+    const [displaySpinner, setDisplaySpinner] = useState(true);
 
-    const addConversationItems = () => {
+    const fetchConversations = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/conversations/get-conversations?username=vanannek`);
+            const data = await response.json();
+            console.log(data);
+            setConversations(data);
+        } catch (error) {
+            console.error("Error fetching conversations:", error);
+        } finally {
+            setDisplaySpinner(false);
+        }
+    };
 
-    }
+    useEffect(() => {
+        fetchConversations();
+    }, []);
 
     return (
         <div className="h-full">
-            {hide ?
+            {displaySpinner ?
                 <LoadingSpinner
                     loadingTitle={"Conversation..."}
                 />
                 :
-                <ul className="list-group overflow-y-scroll">
-                    {conversations && conversations.map((conversation) => (
+                <ul className="divide-y divide-gray-100">
+                    {conversations.map((conversation) => (
                         <ConversationItem
-                            key={conversation.id}
                             conversation={conversation}
-                            onlineUsernames={onlineUsernames}
+                            isOnline={true}
                             handleConversationItemClick={handleConversationItemClick}
                         />
-                    ))
-                    }
+                    ))}
                 </ul>
             }
         </div>

@@ -1,11 +1,20 @@
 import {useEffect, useState} from "react";
 
-const ConversationItem = (
-    conversation,
-    onlineUsernames,
-    handleConversationItemClick
-) => {
-    const [timeAgo, setTimeAgo] = useState(calculateTimeAgo(conversation.lastTimeAgo));
+const ConversationItem = ({
+                      conversation,
+                      isOnline,
+                      handleConversationItemClick
+}) => {
+    const avatar = require('../../assets/avatar/male.png');
+
+    const conversationId = conversation.id;
+
+    const name = conversation.name;
+    const lastMessage = conversation.lastMessageDTO || {};
+    const lastMessageContent = lastMessage.content ? lastMessage.content : '';
+    const lastSendingTime = lastMessage.sendingTime;
+
+    const [timeAgo, setTimeAgo] = useState(calculateTimeAgo(lastSendingTime));
 
     useEffect(() => {
         if (!conversation) {
@@ -14,81 +23,53 @@ const ConversationItem = (
         }
 
         const interval = setInterval(() => {
-            setTimeAgo(calculateTimeAgo(conversation.lastTimeAgo));
+            setTimeAgo(calculateTimeAgo(lastSendingTime));
         }, 60000);
 
         return () => clearInterval(interval);
-    }, [conversation.lastTimeAgo]);
-
-    const avatar = require('../../assets/avatar/male.png');
-
-    const conversationId = conversation.id;
-    const conversationNameId = `conversationName_${conversationId}`;
-    const onlineDotId = `onlineDot_${conversationId}`;
-    const lastMessageId = `lastMessage_${conversationId}`;
-    const lastTimeAgoElementId = `lastTimeAgo_${conversationId}`;
-
-    const name = conversation.name;
-    const lastMessageContent = conversation.lastMessageDTO.content ? conversation.lastMessageDTO.content : '';
-    const lastTimeAgo = conversation.lastTimeAgo;
-    const display = isVisibleOnlineDot(conversation, onlineUsernames);
-
-    function isVisibleOnlineDot(conversation, onlineUsernames) {
-        if (conversation.type === 'PRIVATE') {
-            const recipientUsername = conversation.name;
-            return onlineUsernames.includes(recipientUsername);
-        }
-        return false;
-    }
+    }, []);
 
     function calculateTimeAgo(timestamp) {
         const now = new Date();
+        const sentTime = new Date(timestamp);
+        const timeDifference = now - sentTime;
+
+        const seconds = Math.floor(timeDifference / 1000);
+
+        if (seconds < 60) {
+            return `${seconds} seconds ago`;
+        } else if (seconds < 3600) {
+            const minutes = Math.floor(seconds / 60);
+            return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        } else if (seconds < 86400) {
+            const hours = Math.floor(seconds / 3600);
+            return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`
+        } else {
+            const days = Math.floor(seconds / 86400);
+            return `${days} ${days === 1 ? 'day' : 'days'} ago`
+        }
     }
 
     return (
-        <li
-            className="list-group-item list-group-item-action"
-            id={conversationId}
+        <li key={conversationId}
             onClick={() => handleConversationItemClick(conversation)}
-        >
-            <div className="d-flex w-100 justify-content-between align-items-center">
-                <div className="d-flex align-items-center flex-grow-1">
-                    <img
-                        src={avatar}
-                        className="rounded-circle me-3"
-                        style={{ height: '40px', width: '40px' }}
-                        alt="User Avatar"
-                    />
-                    <div className="d-grid">
-                        <h5
-                            id={conversationNameId}
-                            className="mb-1 text-truncate"
-                            style={{ maxWidth: '80%', fontSize: '18px' }}
-                        >
-                            {name}
-                        </h5>
-                        <p
-                            id={lastMessageId}
-                            className="mb-0 text-truncate text-muted"
-                            style={{ maxWidth: '80%', fontSize: '13px' }}
-                        >
-                            {lastMessageContent}
-                        </p>
-                    </div>
+            className="flex justify-between gap-x-6 py-5">
+            <div className="flex min-w-0 gap-x-4">
+                <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={avatar} alt="" />
+                <div className="min-w-0 flex flex-col">
+                    <p className="text-lg truncate font-semibold leading-6 text-gray-900">{name}</p>
+                    <p className="mt-1 truncate text-xs leading-5 text-gray-500">{lastMessageContent}</p>
                 </div>
-                <div className="text-end">
-          <span
-              id={onlineDotId}
-              className="online-dot"
-              style={{ display: display ? 'block' : 'none' }}
-          ></span>
-                    <small
-                        id={lastTimeAgoElementId}
-                        className="text-truncate text-muted"
-                        style={{ fontSize: '10px' }}
-                    >
-                        {timeAgo}
-                    </small>
+            </div>
+            <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                <p className="mt-1 text-xs leading-5 text-gray-500">
+                    <time dateTime={lastSendingTime}>{timeAgo}</time>
+                </p>
+                <div className="mt-1 flex items-center gap-x-1.5" style={{ display: isOnline ? '' : 'none' }}>
+                    <div className="flex-none rounded-full bg-emerald-500/20 p-1">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    </div>
+                    <p className="text-xs leading-5 text-gray-500">Online</p>
                 </div>
             </div>
         </li>
