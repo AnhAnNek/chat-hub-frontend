@@ -30,10 +30,31 @@ const ChatPage = () => {
     const [curConverstaion, setCurConverstaion] = useState(exampleConversation);
 
     const [chatMessages, setChatMessages] = useState([
+        {
+            id: '1',
+            content: 'Hello there!',
+            type: 'CHAT',
+            senderUsername: 'vanannek',
+            conversationId: '123123123',
+        },
+        {
+            id: '2',
+            content: 'How are you?',
+            type: 'CHAT',
+            senderUsername: 'zoan',
+            conversationId: conversationId,
+        },
+        // {
+        //     id: '3',
+        //     content: 'I\'m doing well, thank you!',
+        //     type: 'CHAT',
+        //     senderUsername: 'vanannek',
+        //     conversationId: conversationId
+        // },
         exampleChatMessage
     ])
 
-    const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(true);
+    const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(false);
 
     const onSendMessage = (newChatMessage) => {
         setChatMessages((prevChatMessages) =>
@@ -65,7 +86,10 @@ const ChatPage = () => {
                     />
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                    <MessageArea chatMessages={chatMessages}/>
+                    <MessageArea
+                        curSenderUsername={curSenderUsername}
+                        chatMessages={chatMessages}
+                    />
                 </div>
                 <div className="shrink-0">
                     <MessageInputTool

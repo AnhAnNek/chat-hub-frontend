@@ -6,6 +6,7 @@ import RegisterPage from "./component/LoginPage/RegisterPage";
 import AddPrivateConversationPage from "./component/AddPrivateConversationPage/AddPrivateConversationPage";
 import AddGroupPage from "./component/AddGroupPage/AddGroupPage";
 import ForgotPasswordPage from "./component/LoginPage/ForgotPasswordPage";
+import Error404Page from "./component/Error404Page";
 
 function App() {
     return (
@@ -21,6 +22,8 @@ function App() {
                     index
                     element={<Navigate to="/login" replace />}
                 />
+
+                <Route path="*" element={<Error404Page />}/>
             </Routes>
         </Router>
     );
