@@ -2,7 +2,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faInfo} from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 
-const MessageHeader = ({ conversation }) => {
+const MessageHeader = ({ conversation, onOpenDetailConversation }) => {
 
     return (
         <div className="flex flex-wrap">
@@ -21,9 +21,9 @@ const MessageHeader = ({ conversation }) => {
             </div>
             <div className="w-full sm:w-1/4 mb-4">
                 <div className="flex items-center justify-end space-x-3">
-                    <a href="/show-unchatted-users">
-                        <FontAwesomeIcon icon={faInfo} size="x"/>
-                    </a>
+                    <div className="flex items-center justify-center hover:bg-gray-200 rounded-full p-2 cursor-pointer">
+                        <FontAwesomeIcon icon={faInfo} size="lg" onClick={onOpenDetailConversation} />
+                    </div>
                 </div>
             </div>
         </div>

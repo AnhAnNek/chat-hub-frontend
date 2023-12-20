@@ -4,6 +4,8 @@ import MessageHeader from "./MesageHeader";
 import MessageArea from "./MessageArea";
 import MessageInputTool from "./MessageInputTool";
 import {useState} from "react";
+import ConversationDetailsSlide from "./ConversationDetailsSlide";
+import ConversationList from "./ConversationList";
 
 const ChatPage = () => {
     const curSenderUsername = 'vanannek';
@@ -31,6 +33,8 @@ const ChatPage = () => {
         exampleChatMessage
     ])
 
+    const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(true);
+
     const onSendMessage = (newChatMessage) => {
         setChatMessages((prevChatMessages) =>
             [...prevChatMessages, newChatMessage]);
@@ -44,7 +48,7 @@ const ChatPage = () => {
                     <ConversationSearchBar/>
                 </div>
                 <div className="flex-1 overflow-y-auto">
-                    {/*<ConversationList/>*/}
+                    <ConversationList/>
                     {/*<ConversationItem*/}
                     {/*    conversation={exampleConversation}*/}
                     {/*    onlineUsernames={[]}*/}
@@ -55,7 +59,10 @@ const ChatPage = () => {
 
             <div className="w-full md:w-2/3 p-4 h-screen flex flex-col">
                 <div>
-                    <MessageHeader conversation={exampleConversation}/>
+                    <MessageHeader
+                        conversation={exampleConversation}
+                        onOpenDetailConversation={() => setIsDetailConversationOpen(true)}
+                    />
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <MessageArea chatMessages={chatMessages}/>
@@ -68,6 +75,10 @@ const ChatPage = () => {
                     />
                 </div>
             </div>
+            <ConversationDetailsSlide
+                open={isDetailConversationOpen}
+                onClose={() => setIsDetailConversationOpen(false)}
+            />
         </div>
     );
 }
