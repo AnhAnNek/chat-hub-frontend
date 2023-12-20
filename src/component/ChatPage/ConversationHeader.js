@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faUsers, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import {Link} from "react-router-dom";
 
 const ConversationHeader = ({ username }) => {
     return (
@@ -22,9 +23,9 @@ const ConversationHeader = ({ username }) => {
                         <FontAwesomeIcon icon={faUsers} />
                     </a>
 
-                    <a href="/logout">
+                    <Link to="/login">
                         <FontAwesomeIcon icon={faArrowRightFromBracket} />
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>
