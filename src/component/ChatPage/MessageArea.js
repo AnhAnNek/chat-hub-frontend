@@ -1,6 +1,6 @@
-const MessageArea = () => {
+const MessageArea = ({ chatMessages }) => {
     return (
-        <div>
+        <div className="border rounded h-full p-2">
            This is message Area
         </div>
     );
