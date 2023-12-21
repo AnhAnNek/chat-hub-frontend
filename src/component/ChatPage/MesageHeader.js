@@ -11,8 +11,9 @@ const MessageHeader = ({ conversation, onOpenDetailConversation }) => {
                      className="border border-slate-300 rounded-full me-3"
                      style={{height: '50px', width: '50px'}} alt="Current User Avatar"/>
                 <div className="flex flex-col w-full">
-                    <h5 className="w-full overflow-hidden overflow-ellipsis text-2xl"
-                    >{conversation.name}</h5>
+                    <h5 className="w-full overflow-hidden overflow-ellipsis text-2xl whitespace-nowrap">
+                        {conversation.name}
+                    </h5>
                     <div className="flex items-center">
                         <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
                         <p className="text-xs text-gray-500">Active now</p>

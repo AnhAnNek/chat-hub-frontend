@@ -3,103 +3,114 @@ import ConversationSearchBar from "./ConversationSearchBar";
 import MessageHeader from "./MesageHeader";
 import MessageArea from "./MessageArea";
 import MessageInputTool from "./MessageInputTool";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import ConversationDetailsSlide from "./ConversationDetailsSlide";
 import ConversationList from "./ConversationList";
+import {data} from "autoprefixer";
 
 const ChatPage = () => {
+    const ORIGINAL_URL = 'http://localhost:8000';
+
     const curSenderUsername = 'vanannek';
-    const conversationId = '123123123';
 
-    const exampleChatMessage = {
-        id: '123213',
-        content: 'hello',
-        type: 'CHAT',
-        senderUsername: 'vanannek',
-        conversationId: conversationId
-    };
-
-    const exampleConversation = {
-        id: conversationId,
-        type: 'PRIVATE',
-        name: 'zoan',
-        lastMessageDTO: exampleChatMessage
-    };
-
-    const [curConverstaion, setCurConverstaion] = useState(exampleConversation);
-
-    const [chatMessages, setChatMessages] = useState([
-        {
-            id: '1',
-            content: 'Hello there!',
-            type: 'CHAT',
-            senderUsername: 'vanannek',
-            conversationId: '123123123',
-        },
-        {
-            id: '2',
-            content: 'How are you?',
-            type: 'CHAT',
-            senderUsername: 'zoan',
-            conversationId: conversationId,
-        },
-        // {
-        //     id: '3',
-        //     content: 'I\'m doing well, thank you!',
-        //     type: 'CHAT',
-        //     senderUsername: 'vanannek',
-        //     conversationId: conversationId
-        // },
-        exampleChatMessage
-    ])
-
+    const [curConversations, setCurConversations] = useState([]);
+    const [curConversation, setCurConversation] = useState({name: "Unknown"});
+    const [displayConversationSpinner, setDisplayConversationSpinner] = useState(true);
+    const [curChatMessages, setCurChatMessages] = useState([]);
+    const [displayMessageSpinner, setDisplayMessageSpinner] = useState(true);
     const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(false);
 
+    const fetchConversations = async () => {
+        try {
+            const restUrl = `${ORIGINAL_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
+            const response = await fetch(restUrl);
+            const conversations = await response.json();
+            console.log(conversations);
+            if (conversations.length > 0) {
+                updateCurConversation(conversations[0]);
+            }
+            setCurConversations(conversations);
+        } catch (error) {
+            console.error("Error fetching conversations:", error);
+        } finally {
+            setDisplayConversationSpinner(false);
+        }
+    };
+
+    const fetchChatMessages = async (conversationId) => {
+        try {
+            const response = await fetch(`${ORIGINAL_URL}/api/messages/get-messages?conversationId=${conversationId}`);
+            const chatMessages = await response.json();
+            console.log(chatMessages);
+            setCurChatMessages(chatMessages);
+        } catch (error) {
+            console.error("Error fetching conversations:", error);
+        } finally {
+            setDisplayMessageSpinner(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchConversations();
+    }, []);
+
+    const updateCurConversation = (conversation) => {
+        setCurConversation(conversation);
+        fetchChatMessages(conversation.id);
+    };
+
     const onSendMessage = (newChatMessage) => {
-        setChatMessages((prevChatMessages) =>
+        setCurChatMessages((prevChatMessages) =>
             [...prevChatMessages, newChatMessage]);
     };
 
+    const onSearch = (searchTerm) => {
+
+    };
+
     const handleConversationItemClick = (conversation) => {
-        console.log(conversation);
+        console.log(`On click conversation item: ${conversation}`);
+        if (conversation.id === curConversation.id) {
+            return;
+        }
+        setCurConversation(conversation);
+        fetchChatMessages(conversation.id);
     };
 
     return (
         <div className="flex flex-wrap">
-            <div className="w-full md:w-1/3 bg-gray-100 p-5 h-screen flex flex-col">
+            <div className="w-full md:w-1/4 bg-gray-100 p-5 h-screen flex flex-col">
                 <div className="flex-shrink-0">
                     <ConversationHeader username={curSenderUsername}/>
-                    <ConversationSearchBar/>
+                    <ConversationSearchBar onSearch={onSearch}/>
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <ConversationList
+                        conversations={curConversations}
+                        displaySpinner={displayConversationSpinner}
                         handleConversationItemClick={handleConversationItemClick}
                     />
-                    {/*<ConversationItem*/}
-                    {/*    conversation={exampleConversation}*/}
-                    {/*    onlineUsernames={[]}*/}
-                    {/*    handleConversationItemClick={() => {}}*/}
-                    {/*/>*/}
                 </div>
             </div>
 
-            <div className="w-full md:w-2/3 p-4 h-screen flex flex-col">
+            <div className="w-full md:w-3/4 p-4 h-screen flex flex-col">
                 <div>
                     <MessageHeader
-                        conversation={exampleConversation}
+                        conversation={curConversation}
                         onOpenDetailConversation={() => setIsDetailConversationOpen(true)}
                     />
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <MessageArea
                         curSenderUsername={curSenderUsername}
-                        chatMessages={chatMessages}
+                        chatMessages={curChatMessages}
+                        displaySpinner={displayMessageSpinner}
                     />
                 </div>
                 <div className="shrink-0">
                     <MessageInputTool
                         curUsername={curSenderUsername}
-                        curConversationId={curConverstaion.id}
+                        curConversationId={curConversation.id}
                         onSendMessage={onSendMessage}
                     />
                 </div>

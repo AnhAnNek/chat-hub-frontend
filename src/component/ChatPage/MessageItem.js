@@ -63,7 +63,7 @@ const NotificationItem = ({ chatMessage }) => {
 
 const MessageItem = ({ curSenderUsername, chatMessage }) => {
     if (chatMessage.type === 'NOTIFICATION') {
-        return <NotificationItem content={chatMessage.content}/>
+        return <NotificationItem chatMessage={chatMessage}/>
     }
     if (chatMessage.senderUsername === curSenderUsername) {
         return <SenderItem chatMessage={chatMessage}/>
