@@ -14,6 +14,7 @@ const ChatPage = () => {
     const curSenderUsername = 'vanannek';
 
     const [curConversations, setCurConversations] = useState([]);
+    const [curSearchedConversations, setCurSearchedConversations] = useState([]);
     const [curConversation, setCurConversation] = useState({name: "Unknown"});
     const [displayConversationSpinner, setDisplayConversationSpinner] = useState(true);
     const [curChatMessages, setCurChatMessages] = useState([]);
@@ -30,6 +31,7 @@ const ChatPage = () => {
                 updateCurConversation(conversations[0]);
             }
             setCurConversations(conversations);
+            setCurSearchedConversations(conversations);
         } catch (error) {
             console.error("Error fetching conversations:", error);
         } finally {
@@ -65,7 +67,16 @@ const ChatPage = () => {
     };
 
     const onSearch = (searchTerm) => {
+        const AT_LEAST_CHARACTERS = 4;
+        if (searchTerm === undefined || searchTerm === null || searchTerm.length < AT_LEAST_CHARACTERS) {
+            setCurSearchedConversations(curConversations);
+            return;
+        }
 
+        const searchedConversations = curConversations.filter(c =>
+            c.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setCurSearchedConversations(searchedConversations);
     };
 
     const handleConversationItemClick = (conversation) => {
@@ -86,7 +97,7 @@ const ChatPage = () => {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <ConversationList
-                        conversations={curConversations}
+                        conversations={curSearchedConversations}
                         displaySpinner={displayConversationSpinner}
                         handleConversationItemClick={handleConversationItemClick}
                     />
