@@ -4,7 +4,7 @@ import MessageHeader from "./MesageHeader";
 import MessageArea from "./MessageArea";
 import MessageInputTool from "./MessageInputTool";
 import {useEffect, useState} from "react";
-import ConversationDetailsSlide from "./ConversationDetailsSlide";
+import ConversationDetailsSlide from "./ConversationDetailsSlide/ConversationDetailsSlide";
 import ConversationList from "./ConversationList";
 import {data} from "autoprefixer";
 
@@ -129,6 +129,7 @@ const ChatPage = () => {
             <ConversationDetailsSlide
                 open={isDetailConversationOpen}
                 onClose={() => setIsDetailConversationOpen(false)}
+                conversation={curConversation}
             />
         </div>
     );
