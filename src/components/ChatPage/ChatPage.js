@@ -3,13 +3,14 @@ import ConversationSearchBar from "./ConversationSearchBar";
 import MessageHeader from "./MesageHeader";
 import MessageArea from "./MessageArea";
 import MessageInputTool from "./MessageInputTool";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import ConversationDetailsSlide from "./ConversationDetailsSlide/ConversationDetailsSlide";
 import ConversationList from "./ConversationList";
 import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
 import {useAuthentication} from "../../hooks/useAuthentication";
 
+const AT_LEAST_CHARACTERS = 4;
 let stompClient = null;
 
 const ChatPage = () => {
@@ -77,7 +78,6 @@ const ChatPage = () => {
         console.log('onOnlineUsersReceived function');
         const onlineUsernames = JSON.parse(payload.body);
         console.log("Online usernames: " + onlineUsernames);
-        // fetchConversations(onlineUsernames);
     }
 
     const sendUserJoinMessage = () => {
@@ -118,8 +118,7 @@ const ChatPage = () => {
             const restUrl = `${ORIGINAL_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
             const response = await fetch(restUrl);
             const conversations = await response.json();
-            console.log(conversations);
-            if (conversations.length > 0) {
+            if (conversations?.length > 0) {
                 handleConversationItemClick(conversations[0]);
             }
             setCurConversations(conversations);
@@ -136,7 +135,6 @@ const ChatPage = () => {
         try {
             const response = await fetch(`${ORIGINAL_URL}/api/messages/get-messages?conversationId=${conversationId}`);
             const chatMessages = await response.json();
-            console.log(chatMessages);
             setCurChatMessages(chatMessages);
         } catch (error) {
             console.error("Error fetching conversations:", error);
@@ -160,7 +158,6 @@ const ChatPage = () => {
     };
 
     const onSearch = (searchTerm) => {
-        const AT_LEAST_CHARACTERS = 4;
         if (searchTerm === undefined || searchTerm === null || searchTerm.length < AT_LEAST_CHARACTERS) {
             setCurSearchedConversations(curConversations);
             return;
@@ -194,8 +191,8 @@ const ChatPage = () => {
 
     return (
         <div className="flex flex-wrap">
-            <div className="w-full md:w-1/4 bg-gray-100 p-5 h-screen flex flex-col">
-                <div className="flex-shrink-0">
+            <div className="w-full md:w-1/4 bg-gray-100 h-screen flex flex-col">
+                <div className="flex-shrink-0 p-5">
                     <ConversationHeader username={curSenderUsername}/>
                     <ConversationSearchBar onSearch={onSearch}/>
                 </div>

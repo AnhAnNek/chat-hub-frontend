@@ -40,11 +40,12 @@ const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
     }, []);
 
     useEffect(() => {
-        const lastMessage = chatMessages.slice(-1)[0];
-        const newMsgHeight = getMsgScrollRemainingHeight();
-        if (curSenderUsername === lastMessage?.senderUsername || newMsgHeight < SCROLL_THRESHOLD) {
-            handleScrollDown();
-        }
+        // const lastMessage = chatMessages.slice(-1)[0];
+        // const newMsgHeight = getMsgScrollRemainingHeight();
+        // if (curSenderUsername === lastMessage?.senderUsername || newMsgHeight < SCROLL_THRESHOLD) {
+        //     handleScrollDown();
+        // }
+        handleScrollDown();
     }, [chatMessages]);
 
     return (

@@ -1,8 +1,13 @@
 import {useEffect, useState} from "react";
 
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+}
+
 const ConversationItem = ({
                       conversation,
                       isOnline,
+                      isClicked,
                       handleConversationItemClick
 }) => {
     const avatar = require('../../assets/avatar/male.png');
@@ -51,8 +56,20 @@ const ConversationItem = ({
     }
 
     return (
-        <li onClick={() => handleConversationItemClick(conversation)}
-            className="flex justify-between gap-x-6 py-5">
+        <li id={conversationId}
+            onClick={() => handleConversationItemClick(conversation)}
+            className={classNames(
+                'flex',
+                'justify-between',
+                'gap-x-6',
+                'px-5',
+                'py-5',
+                'rounded-lg',
+                'hover:bg-white',
+                'transition duration-75',
+                { 'bg-white': isClicked }
+            )}
+        >
             <div className="flex min-w-0 gap-x-4">
                 <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={avatar} alt="" />
                 <div className="min-w-0 flex flex-col">
