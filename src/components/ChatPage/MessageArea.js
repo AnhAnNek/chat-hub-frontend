@@ -4,9 +4,22 @@ import {useEffect, useRef, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChevronDown} from "@fortawesome/free-solid-svg-icons";
 
-const MessageArea = ({ parentRef, curSenderUsername, chatMessages, displaySpinner }) => {
+const SCROLL_THRESHOLD = 300;
+
+const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
     const messageAreaRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
+
+    const handleScrollDown = () => {
+        messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
+    };
+
+    const getMsgScrollRemainingHeight = () => {
+        const height = messageAreaRef.current.scrollHeight;
+        const top = messageAreaRef.current.scrollTop;
+        const clientHeight = messageAreaRef.current.clientHeight;
+        return height - top - clientHeight;
+    }
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,16 +40,12 @@ const MessageArea = ({ parentRef, curSenderUsername, chatMessages, displaySpinne
     }, []);
 
     useEffect(() => {
-        messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
+        const lastMessage = chatMessages.slice(-1)[0];
+        const newMsgHeight = getMsgScrollRemainingHeight();
+        if (curSenderUsername === lastMessage?.senderUsername || newMsgHeight < SCROLL_THRESHOLD) {
+            handleScrollDown();
+        }
     }, [chatMessages]);
-
-    const handleScrollDown = () => {
-        messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
-    };
-
-    useEffect(() => {
-        parentRef.current = { handleScrollDown };
-    }, [parentRef]);
 
     return (
         <div className="relative h-full">

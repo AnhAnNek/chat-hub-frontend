@@ -27,8 +27,6 @@ const ChatPage = () => {
     const [displayMessageSpinner, setDisplayMessageSpinner] = useState(true);
     const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(false);
 
-    const messageAreaRef = useRef(null);
-
     const connect = () => {
         disconnect();
         if (curSenderUsername) {
@@ -151,14 +149,14 @@ const ChatPage = () => {
         if (stompClient) {
             const sendingDest = getSendingDestination();
             stompClient.send(sendingDest, {}, JSON.stringify(chatMessage));
+        } else {
+            console.log("Missing message");
         }
     };
 
     const addToMessageArea = (newChatMessage) => {
         setCurChatMessages((prevChatMessages) =>
             [...prevChatMessages, newChatMessage]);
-
-        messageAreaRef.current.handleScrollDown();
     };
 
     const onSearch = (searchTerm) => {
@@ -219,7 +217,6 @@ const ChatPage = () => {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <MessageArea
-                        parentRef={messageAreaRef}
                         curSenderUsername={curSenderUsername}
                         chatMessages={curChatMessages}
                         displaySpinner={displayMessageSpinner}
