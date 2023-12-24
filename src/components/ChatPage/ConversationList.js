@@ -12,7 +12,7 @@ const ConversationList = ({ conversations, displaySpinner, handleConversationIte
                 <ul className="divide-y divide-gray-100">
                     {conversations.map((conversation) => (
                         <ConversationItem
-                            key={conversations.id}
+                            key={conversation?.id}
                             conversation={conversation}
                             isOnline={true}
                             handleConversationItemClick={handleConversationItemClick}

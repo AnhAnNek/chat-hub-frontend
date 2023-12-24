@@ -12,7 +12,7 @@ const MessageHeader = ({ conversation, onOpenDetailConversation }) => {
                      style={{height: '50px', width: '50px'}} alt="Current User Avatar"/>
                 <div className="flex flex-col w-full">
                     <h5 className="w-full overflow-hidden overflow-ellipsis text-2xl whitespace-nowrap">
-                        {conversation.name}
+                        {conversation?.name}
                     </h5>
                     <div className="flex items-center">
                         <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>

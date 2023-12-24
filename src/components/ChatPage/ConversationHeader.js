@@ -1,9 +1,16 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faUsers, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import {Link} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const ConversationHeader = ({ username }) => {
+    const navigate = useNavigate();
+
+    const logout = () => {
+        sessionStorage.clear();
+        navigate('/login');
+    };
+
     return (
         <div className="flex flex-wrap">
             <div className="w-full sm:w-1/2 mb-4 flex">
@@ -23,9 +30,7 @@ const ConversationHeader = ({ username }) => {
                         <FontAwesomeIcon icon={faUsers} />
                     </a>
 
-                    <Link to="/login">
-                        <FontAwesomeIcon icon={faArrowRightFromBracket} />
-                    </Link>
+                    <FontAwesomeIcon icon={faArrowRightFromBracket} onClick={logout}/>
                 </div>
             </div>
         </div>

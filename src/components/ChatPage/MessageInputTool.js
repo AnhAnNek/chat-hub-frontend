@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const MessageInputTool = ({ curUsername, curConversationId, onSendMessage }) => {
+const MessageInputTool = ({ curUsername, curConversationId, sendToServer }) => {
     const [newMessage, setNewMessage] = useState('');
 
     const handleInputChange = (e) => {
@@ -17,7 +17,7 @@ const MessageInputTool = ({ curUsername, curConversationId, onSendMessage }) => 
                 senderUsername: curUsername,
                 conversationId: curConversationId
             }
-            onSendMessage(chatMessage);
+            sendToServer(chatMessage);
             setNewMessage('');
         }
     };

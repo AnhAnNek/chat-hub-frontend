@@ -1,12 +1,12 @@
 import React from 'react';
 import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
-import LoginPage from './component/LoginPage/LoginPage';
-import ChatPage from './component/ChatPage/ChatPage';
-import RegisterPage from "./component/LoginPage/RegisterPage";
-import AddPrivateConversationPage from "./component/AddPrivateConversationPage/AddPrivateConversationPage";
-import AddGroupPage from "./component/AddGroupPage/AddGroupPage";
-import ForgotPasswordPage from "./component/LoginPage/ForgotPasswordPage";
-import Error404Page from "./component/Error404Page";
+import LoginPage from './components/LoginPage/LoginPage';
+import ChatPage from './components/ChatPage/ChatPage';
+import RegisterPage from "./components/LoginPage/RegisterPage";
+import AddPrivateConversationPage from "./components/AddPrivateConversationPage/AddPrivateConversationPage";
+import AddGroupPage from "./components/AddGroupPage/AddGroupPage";
+import ForgotPasswordPage from "./components/LoginPage/ForgotPasswordPage";
+import Error404Page from "./components/Error404Page";
 
 function App() {
     return (

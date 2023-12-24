@@ -6,13 +6,32 @@ import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
 const LoginPage = () => {
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false)
+    const [username, setUsername] = useState('vanannek');
+    const [password, setPassword] = useState('123456');
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = async (e) => {
+    const login = async (e) => {
+        e.preventDefault();
+
         try {
-            navigate("/chat-page");
+            const response = await fetch('http://localhost:8000/api/login/login-process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    plainPass: password,
+                }),
+            });
+
+            if (response.ok) {
+                console.log('Login successful');
+                sessionStorage.setItem("username", username);
+                navigate("/chat-page");
+            } else {
+                console.error('Error failed');
+            }
         } catch (error) {
             console.log('Login failed', error);
         }
@@ -87,7 +106,7 @@ const LoginPage = () => {
                         <button
                             type="submit"
                             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            onClick={handleLogin}
+                            onClick={login}
                         >
                             Login
                         </button>

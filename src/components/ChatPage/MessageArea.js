@@ -4,20 +4,25 @@ import {useEffect, useRef, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChevronDown} from "@fortawesome/free-solid-svg-icons";
 
-const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
+const MessageArea = ({ parentRef, curSenderUsername, chatMessages, displaySpinner }) => {
     const messageAreaRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            setShowScrollButton(messageAreaRef.current.scrollTop <
-                messageAreaRef.current.scrollHeight - messageAreaRef.current.clientHeight);
+            setShowScrollButton(
+                messageAreaRef.current.scrollTop <
+                messageAreaRef.current.scrollHeight - messageAreaRef.current.clientHeight
+            );
         };
 
         messageAreaRef.current.addEventListener('scroll', handleScroll);
 
         return () => {
-            messageAreaRef.current.removeEventListener('scroll', handleScroll);
+            if (messageAreaRef.current) {
+                const currentRef = messageAreaRef.current;
+                currentRef.removeEventListener('scroll', handleScroll);
+            }
         };
     }, []);
 
@@ -28,6 +33,10 @@ const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
     const handleScrollDown = () => {
         messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
     };
+
+    useEffect(() => {
+        parentRef.current = { handleScrollDown };
+    }, [parentRef]);
 
     return (
         <div className="relative h-full">
