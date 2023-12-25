@@ -1,20 +1,33 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
+import {faEye, faEyeSlash, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import CustomModal from "../CustomModal";
+import {ORIGINAL_API_URL} from "../../utils/base";
 
 const LoginPage = () => {
     const navigate = useNavigate();
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState('vanannek');
     const [password, setPassword] = useState('123456');
     const [showPassword, setShowPassword] = useState(false);
 
+    const openModal = (errorMessage) => {
+        setErrorMessage(errorMessage);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
     const login = async (e) => {
         e.preventDefault();
-
         try {
-            const response = await fetch('http://localhost:8000/api/login/login-process', {
+            const response = await fetch(`${ORIGINAL_API_URL}/api/login/login-process`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,12 +41,18 @@ const LoginPage = () => {
             if (response.ok) {
                 console.log('Login successful');
                 sessionStorage.setItem("username", username);
-                navigate("/chat-page");
+                setIsLoading(true);
+
+                setTimeout(() => {
+                    setIsLoading(false);
+                    navigate("/chat-page");
+                }, 1000);
             } else {
-                console.error('Error failed');
+                openModal('Your username or password is incorrect. Please try again.');
             }
         } catch (error) {
-            console.log('Login failed', error);
+            console.error('Login failed', error);
+            openModal('An error occurred while logging in. Please try again.');
         }
     };
 
@@ -107,8 +126,18 @@ const LoginPage = () => {
                             type="submit"
                             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             onClick={login}
+                            disabled={isLoading}
                         >
-                            Login
+                            {isLoading ? (
+                                <>
+                                    <FontAwesomeIcon icon={faSpinner} size="xl" spin style={{color: "#ffffff",}}/>
+                                    <span className="ml-2">Login...</span>
+                                </>
+                            ) : (
+                                <>
+                                    Login
+                                </>
+                            )}
                         </button>
                     </div>
 
@@ -120,6 +149,18 @@ const LoginPage = () => {
                     </p>
                 </div>
             </div>
+
+
+
+            {isModalOpen && (
+                <CustomModal
+                    isError={true}
+                    title={'Login Failed'}
+                    message={errorMessage}
+                    isOpen={isModalOpen}
+                    onClose={closeModal}
+                />
+            )}
         </div>
     );
 }

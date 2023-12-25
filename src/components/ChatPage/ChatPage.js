@@ -9,14 +9,13 @@ import ConversationList from "./ConversationList";
 import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
 import {useAuthentication} from "../../hooks/useAuthentication";
+import {ORIGINAL_API_URL} from "../../utils/base";
 
 const AT_LEAST_CHARACTERS = 4;
 let stompClient = null;
 
 const ChatPage = () => {
     useAuthentication();
-
-    const ORIGINAL_URL = 'http://localhost:8000';
 
     const curSenderUsername = sessionStorage.getItem("username");
 
@@ -33,7 +32,7 @@ const ChatPage = () => {
         if (curSenderUsername) {
             console.log("Connect WS");
 
-            const wsUrl = `${ORIGINAL_URL}/ws`;
+            const wsUrl = `${ORIGINAL_API_URL}/ws`;
             const socket = new SockJS(wsUrl);
             stompClient = over(socket);
 
@@ -115,7 +114,7 @@ const ChatPage = () => {
     const fetchConversations = async () => {
         setDisplayConversationSpinner(true);
         try {
-            const restUrl = `${ORIGINAL_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
+            const restUrl = `${ORIGINAL_API_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
             const response = await fetch(restUrl);
             const conversations = await response.json();
             if (conversations?.length > 0) {
@@ -133,7 +132,7 @@ const ChatPage = () => {
     const fetchChatMessages = async (conversationId) => {
         setDisplayMessageSpinner(true);
         try {
-            const response = await fetch(`${ORIGINAL_URL}/api/messages/get-messages?conversationId=${conversationId}`);
+            const response = await fetch(`${ORIGINAL_API_URL}/api/messages/get-messages?conversationId=${conversationId}`);
             const chatMessages = await response.json();
             setCurChatMessages(chatMessages);
         } catch (error) {

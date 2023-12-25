@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import {Tab} from "@headlessui/react";
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+import { classNames } from '../../../utils/base';
 
 const ConversationDetailsTab = () => {
     let [categories] = useState({

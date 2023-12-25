@@ -1,7 +1,8 @@
 import {Dialog, Transition} from '@headlessui/react'
 import {Fragment} from 'react'
+import {classNames} from "../utils/base";
 
-const CustomModal = ({title, message, okButtonContent, isOpen, onClose}) => {
+const CustomModal = ({ isError, title, message, isOpen, onClose}) => {
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -45,10 +46,15 @@ const CustomModal = ({title, message, okButtonContent, isOpen, onClose}) => {
                                 <div className="mt-4">
                                     <button
                                         type="button"
-                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                        className={classNames(
+                                                'inline-flex justify-center rounded-md border px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                                                isError
+                                                    ? 'border-red-300 bg-red-100 text-red-900 hover:bg-red-200 focus-visible:ring-red-500'
+                                                    : 'border-blue-500 bg-blue-100 text-blue-900 hover:bg-blue-200 focus-visible:ring-blue-500'
+                                            )}
                                         onClick={onClose}
                                     >
-                                        {okButtonContent}
+                                        Ok
                                     </button>
                                 </div>
                             </Dialog.Panel>

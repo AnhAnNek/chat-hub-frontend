@@ -1,8 +1,5 @@
 import {useEffect, useState} from "react";
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-}
+import { classNames } from '../../utils/base';
 
 const ConversationItem = ({
                       conversation,
