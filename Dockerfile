@@ -1,23 +1,19 @@
-# Use an official Node.js runtime as a base image
-FROM --platform=linux/amd64 node:14-alpine
+# Fetching the latest node image on alpine linux
+FROM --platform=linux/amd64 node:alpine AS development
 
-# Set the working directory inside the container
-WORKDIR /chat-hub-frontend
+# Declaring env
+ENV NODE_ENV development
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Setting up the work directory
+WORKDIR /react-app
 
-# Install dependencies
+# Installing dependencies
+COPY ./package*.json /react-app
+
 RUN npm install
 
-# Copy the rest of the application code
+# Copying all the files in our project
 COPY . .
 
-# Build the app
-RUN npm run build
-
-# Expose the port on which the app will run
-EXPOSE 3000
-
-# Define the command to run your app
-CMD ["npm", "start"]
+# Starting our application
+CMD ["npm","start"]
