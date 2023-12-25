@@ -88,18 +88,21 @@ const ChatPage = () => {
             }
         })
         setCurConversations(newConversations);
+        setCurSearchedConversations(newConversations);
     }
 
     const sendUserJoinMessage = () => {
-        const chatMessage = {
-            content: `\`${curSenderUsername}\` joined!`,
-            type: 'NOTIFICATION',
-            sendingTime: new Date().getTime(),
-            senderUsername: curSenderUsername,
-            conversationId: curConversation?.id
+        if (curSenderUsername) {
+            const chatMessage = {
+                content: `\`${curSenderUsername}\` joined!`,
+                type: 'NOTIFICATION',
+                sendingTime: new Date().getTime(),
+                senderUsername: curSenderUsername,
+                conversationId: curConversation?.id
+            }
+            const addingUserDest = getAddingUserDestination();
+            stompClient.send(addingUserDest, {}, JSON.stringify(chatMessage));
         }
-        const addingUserDest = getAddingUserDestination();
-        stompClient.send(addingUserDest, {}, JSON.stringify(chatMessage));
     }
 
     const onError = (error) => {
@@ -129,6 +132,7 @@ const ChatPage = () => {
             const response = await fetch(restUrl);
             const conversations = await response.json();
             if (conversations?.length > 0) {
+                conversations[0].isSelected = true;
                 handleConversationItemClick(conversations[0]);
             }
             setCurConversations(conversations);
@@ -185,7 +189,7 @@ const ChatPage = () => {
         if (newConversationId === curConversation?.id) {
             return;
         }
-        setCurConversation({ ...conversation, isSelected: true });
+        setCurConversation(conversation);
         console.log(`After setCurConversation: ${curConversation?.id}`);
 
         const newConversations = curConversations.map(item => {
@@ -196,10 +200,13 @@ const ChatPage = () => {
             }
         });
         setCurConversations(newConversations);
+        setCurSearchedConversations(newConversations);
     };
 
     useEffect(() => {
-        fetchConversations();
+        if (curSenderUsername) {
+            fetchConversations();
+        }
     }, [curSenderUsername]);
 
     useEffect(() => {
@@ -213,7 +220,10 @@ const ChatPage = () => {
         <div className="flex flex-wrap">
             <div className="w-full md:w-1/4 bg-gray-100 h-screen flex flex-col">
                 <div className="flex-shrink-0 p-5">
-                    <ConversationHeader username={curSenderUsername}/>
+                    <ConversationHeader
+                        username={curSenderUsername}
+                        onDisconnect={disconnect}
+                    />
                     <ConversationSearchBar onSearch={onSearch}/>
                 </div>
                 <div className="flex-1 overflow-y-auto">

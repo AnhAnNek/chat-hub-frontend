@@ -3,19 +3,19 @@ import { classNames } from '../../utils/base';
 
 const ConversationItem = ({
                       conversation,
-                      handleConversationItemClick
+                      onClickItem
 }) => {
     const avatar = require('../../assets/avatar/male.png');
 
     const conversationId = conversation.id;
 
-    let isOnline = Boolean(conversation?.isOnline);
-    let isSelected = Boolean(conversation?.isSelected);
+    const isOnline = Boolean(conversation?.isOnline);
+    const isSelected = Boolean(conversation?.isSelected);
 
-    let name = conversation.name;
-    let lastMessage = conversation.lastMessageDTO || {};
-    let lastMessageContent = lastMessage.content ? lastMessage.content : '';
-    let lastSendingTime = lastMessage.sendingTime;
+    const name = conversation.name;
+    const lastMessage = conversation.lastMessageDTO || {};
+    const lastMessageContent = lastMessage.content ? lastMessage.content : '';
+    const lastSendingTime = lastMessage.sendingTime;
 
     const [timeAgo, setTimeAgo] = useState(calculateTimeAgo(lastSendingTime));
 
@@ -55,21 +55,26 @@ const ConversationItem = ({
 
     return (
         <li id={conversationId}
-            onClick={() => handleConversationItemClick(conversation)}
+            onClick={() => onClickItem(conversation)}
             className={classNames(
-                'flex',
-                'justify-between',
-                'gap-x-6',
-                'px-5',
-                'py-5',
-                'rounded-lg',
-                'hover:bg-white',
-                'transition duration-75',
-                { 'bg-white': isSelected }
+                'flex justify-between gap-x-6 px-2 py-5',
+                'rounded-lg hover:bg-slate-50 transition duration-75',
+                isSelected && 'bg-white'
             )}
         >
             <div className="flex min-w-0 gap-x-4">
-                <img className="h-12 w-12 flex-none rounded-full bg-gray-50" src={avatar} alt="" />
+                <div className="h-12 w-12 flex-none relative">
+                    <img src={avatar} alt="" className="rounded-full"/>
+                    <div className={classNames('absolute bottom-0 right-0 bg-white',
+                            'border-2 rounded-full transition-opacity duration-500 ease-in-out')}
+                         style={{ opacity: isOnline ? 1 : 0 }}
+                    >
+                        <div className="flex-none rounded-full">
+                            <div className="h-3 w-3 rounded-full bg-green-500"
+                            />
+                        </div>
+                    </div>
+                </div>
                 <div className="min-w-0 flex flex-col">
                     <p className="text-lg truncate font-semibold leading-6 text-gray-900">{name}</p>
                     <p className="mt-1 truncate text-xs leading-5 text-gray-500">{lastMessageContent}</p>
@@ -79,14 +84,6 @@ const ConversationItem = ({
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                     <time dateTime={lastSendingTime}>{timeAgo}</time>
                 </p>
-                <div className="mt-1 flex items-center gap-x-1.5"
-                     style={{ display: isOnline ? '' : 'none' }}
-                >
-                    <div className="flex-none rounded-full bg-emerald-500/20 p-1">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    </div>
-                    <p className="text-xs leading-5 text-gray-500">Online</p>
-                </div>
             </div>
         </li>
     )

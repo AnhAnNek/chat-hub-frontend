@@ -16,7 +16,7 @@ const ConversationList = ({ conversations, displaySpinner, handleConversationIte
                             conversation={conversation}
                             isOnline={Boolean(conversation?.isOnline)}
                             isSelected={Boolean(conversation?.isSelected)}
-                            handleConversationItemClick={handleConversationItemClick}
+                            onClickItem={handleConversationItemClick}
                         />
                     ))}
                 </ul>

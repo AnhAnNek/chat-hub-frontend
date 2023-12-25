@@ -14,10 +14,12 @@ const MessageHeader = ({ conversation, onOpenDetailConversation }) => {
                     <h5 className="w-full overflow-hidden overflow-ellipsis text-2xl whitespace-nowrap">
                         {conversation?.name}
                     </h5>
-                    <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                        <p className="text-xs text-gray-500">Active now</p>
-                    </div>
+                    {Boolean(conversation?.isOnline) && (
+                        <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                            <p className="text-xs text-gray-500">Active now</p>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="w-full sm:w-1/4 mb-4">

@@ -3,10 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faUsers, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import {useNavigate} from "react-router-dom";
 
-const ConversationHeader = ({ username }) => {
+const ConversationHeader = ({ username, onDisconnect }) => {
     const navigate = useNavigate();
 
     const logout = () => {
+        onDisconnect();
         sessionStorage.clear();
         navigate('/login');
     };
