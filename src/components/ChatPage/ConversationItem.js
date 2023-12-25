@@ -3,18 +3,19 @@ import { classNames } from '../../utils/base';
 
 const ConversationItem = ({
                       conversation,
-                      isOnline,
-                      isClicked,
                       handleConversationItemClick
 }) => {
     const avatar = require('../../assets/avatar/male.png');
 
     const conversationId = conversation.id;
 
-    const name = conversation.name;
-    const lastMessage = conversation.lastMessageDTO || {};
-    const lastMessageContent = lastMessage.content ? lastMessage.content : '';
-    const lastSendingTime = lastMessage.sendingTime;
+    let isOnline = Boolean(conversation?.isOnline);
+    let isSelected = Boolean(conversation?.isSelected);
+
+    let name = conversation.name;
+    let lastMessage = conversation.lastMessageDTO || {};
+    let lastMessageContent = lastMessage.content ? lastMessage.content : '';
+    let lastSendingTime = lastMessage.sendingTime;
 
     const [timeAgo, setTimeAgo] = useState(calculateTimeAgo(lastSendingTime));
 
@@ -64,7 +65,7 @@ const ConversationItem = ({
                 'rounded-lg',
                 'hover:bg-white',
                 'transition duration-75',
-                { 'bg-white': isClicked }
+                { 'bg-white': isSelected }
             )}
         >
             <div className="flex min-w-0 gap-x-4">
@@ -78,7 +79,9 @@ const ConversationItem = ({
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                     <time dateTime={lastSendingTime}>{timeAgo}</time>
                 </p>
-                <div className="mt-1 flex items-center gap-x-1.5" style={{ display: isOnline ? '' : 'none' }}>
+                <div className="mt-1 flex items-center gap-x-1.5"
+                     style={{ display: isOnline ? '' : 'none' }}
+                >
                     <div className="flex-none rounded-full bg-emerald-500/20 p-1">
                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     </div>

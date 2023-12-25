@@ -1,16 +1,7 @@
 import LoadingSpinner from "../LoadingSpinner";
 import ConversationItem from "./ConversationItem";
-import {useState} from "react";
 
 const ConversationList = ({ conversations, displaySpinner, handleConversationItemClick }) => {
-    const [clickedItemId, setClickedItemId] = useState(null);
-
-    const handleItemClick = (conversation) => {
-        debugger
-        handleConversationItemClick(conversation);
-        setClickedItemId(conversation.id);
-    };
-
     return (
         <div className="h-full">
             {displaySpinner ?
@@ -23,9 +14,9 @@ const ConversationList = ({ conversations, displaySpinner, handleConversationIte
                         <ConversationItem
                             key={conversation?.id}
                             conversation={conversation}
-                            isOnline={true}
-                            isClicked={clickedItemId === conversation.id}
-                            handleConversationItemClick={handleItemClick}
+                            isOnline={Boolean(conversation?.isOnline)}
+                            isSelected={Boolean(conversation?.isSelected)}
+                            handleConversationItemClick={handleConversationItemClick}
                         />
                     ))}
                 </ul>

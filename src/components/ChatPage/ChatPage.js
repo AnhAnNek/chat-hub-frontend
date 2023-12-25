@@ -50,8 +50,10 @@ const ChatPage = () => {
     const onConnected = (frame) => {
         console.log('onConnected function: ' + frame);
 
-        subscribeTopics();
-        sendUserJoinMessage();
+        if (stompClient && stompClient.connected) {
+            subscribeTopics();
+            sendUserJoinMessage();
+        }
     };
 
     const subscribeTopics = () => {
@@ -77,6 +79,15 @@ const ChatPage = () => {
         console.log('onOnlineUsersReceived function');
         const onlineUsernames = JSON.parse(payload.body);
         console.log("Online usernames: " + onlineUsernames);
+
+        const newConversations = curConversations.map(item => {
+            if (onlineUsernames.includes(item?.name)) {
+                return { ...item, isOnline: true };
+            } else {
+                return { ...item, isOnline: false };
+            }
+        })
+        setCurConversations(newConversations);
     }
 
     const sendUserJoinMessage = () => {
@@ -170,11 +181,21 @@ const ChatPage = () => {
 
     const handleConversationItemClick = (conversation) => {
         console.log(`On click conversation item: ${conversation}`);
-        if (conversation?.id === curConversation?.id) {
+        const newConversationId = conversation?.id;
+        if (newConversationId === curConversation?.id) {
             return;
         }
-        setCurConversation(conversation);
+        setCurConversation({ ...conversation, isSelected: true });
         console.log(`After setCurConversation: ${curConversation?.id}`);
+
+        const newConversations = curConversations.map(item => {
+            if (item.id === newConversationId) {
+                return { ...item, isSelected: true };
+            } else {
+                return { ...item, isSelected: false };
+            }
+        });
+        setCurConversations(newConversations);
     };
 
     useEffect(() => {
