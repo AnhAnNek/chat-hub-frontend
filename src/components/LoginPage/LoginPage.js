@@ -4,8 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faEye, faEyeSlash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import CustomModal from "../CustomModal";
 import {ORIGINAL_API_URL} from "../../utils/base";
+import {useAuthentication} from "../../hooks/useAuthentication";
 
 const LoginPage = () => {
+    useAuthentication();
+
     const navigate = useNavigate();
 
     const [isModalOpen, setIsModalOpen] = useState(false);

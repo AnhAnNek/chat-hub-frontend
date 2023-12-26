@@ -51,7 +51,6 @@ const ChatPage = () => {
     };
 
     const onConnected = (frame) => {
-        debugger
         console.log('WebSocket connection established: ' + frame);
 
         if (stompClient.connected) {
@@ -72,7 +71,6 @@ const ChatPage = () => {
     }
 
     const onOnlineUsersReceived = (payload) => {
-        debugger
         console.log('onOnlineUsersReceived function');
         const onlineUsernames = JSON.parse(payload.body);
         console.log("Online usernames: " + onlineUsernames);
@@ -102,14 +100,12 @@ const ChatPage = () => {
     }
 
     const addUserToServer = () => {
-        debugger
         console.log(`Add an user: ${curSenderUsername}`);
         const addingUserDest = getAddingUserDestination();
         stompClient.send(addingUserDest, {}, '');
     };
 
     const onError = (error) => {
-        debugger
         console.error('WebSocket connection error:', error);
     };
 
@@ -123,7 +119,6 @@ const ChatPage = () => {
             subscribeToConversationTopic(newDest, onMessageReceived);
         });
         console.log("Subscribe to conversation topics");
-        debugger
     };
 
     const onMessageReceived = (payload) => {
@@ -140,7 +135,6 @@ const ChatPage = () => {
     };
 
     const updateLastMessage = (lastMessage) => {
-        debugger
         const lastMessageId = lastMessage.conversationId;
         const updatedConversations = curConversations.map(item => {
             if (item.id === lastMessageId) {
@@ -155,11 +149,9 @@ const ChatPage = () => {
             const movedConversation = updatedConversations.splice(conversationIndex, 1)[0];
             updatedConversations.unshift(movedConversation);
         }
-        debugger
 
         setCurConversations(updatedConversations);
         setCurSearchedConversations(updatedConversations);
-        debugger
     };
 
     const subscribeToConversationTopic = (destination, callback) => {
@@ -174,7 +166,6 @@ const ChatPage = () => {
     };
 
     const unsubscribeAllConversationTopics = () => {
-        debugger
         subscribedConversationDestinations.forEach((subscribedDest, index) => {
             stompClient.unsubscribe(subscribedDest?.id);
         })
@@ -250,7 +241,6 @@ const ChatPage = () => {
     };
 
     const sendToServer = (chatMessage) => {
-        debugger
         if (stompClient) {
             const sendingDest = getSendingDestination();
             stompClient.send(sendingDest, {}, JSON.stringify(chatMessage));
@@ -279,7 +269,6 @@ const ChatPage = () => {
     const handleConversationItemClick = (conversation) => {
         console.log(`On click conversation item: ${conversation}`);
         const newConversationId = conversation?.id;
-        debugger
         setCurConversation(conversation);
         console.log(`After setCurConversation: ${curConversation?.id}`);
 

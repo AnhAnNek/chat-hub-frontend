@@ -23,11 +23,11 @@ const ConversationHeader = ({ username, onDisconnect }) => {
             </div>
             <div className="w-full sm:w-1/2 mb-4">
                 <div className="flex items-center justify-end space-x-3">
-                    <a href="/show-unchatted-users" className="me-3">
+                    <a href="/add-private-conversation-page" className="me-3">
                         <FontAwesomeIcon icon={faCommentDots} />
                     </a>
 
-                    <a href="/show-add-group" className="me-3">
+                    <a href="/add-group-page" className="me-3">
                         <FontAwesomeIcon icon={faUsers} />
                     </a>
 

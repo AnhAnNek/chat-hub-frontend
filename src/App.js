@@ -16,8 +16,8 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/chat-page" element={<ChatPage />} />
-                <Route path="/add-private-conversation" element={<AddPrivateConversationPage />} />
-                <Route path="/add-group" element={<AddGroupPage />} />
+                <Route path="/add-private-conversation-page" element={<AddPrivateConversationPage />} />
+                <Route path="/add-group-page" element={<AddGroupPage />} />
                 <Route
                     index
                     element={<Navigate to="/login" replace />}
