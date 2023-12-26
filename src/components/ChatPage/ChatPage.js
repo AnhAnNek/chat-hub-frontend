@@ -27,103 +27,180 @@ const ChatPage = () => {
     const [displayMessageSpinner, setDisplayMessageSpinner] = useState(true);
     const [isDetailConversationOpen, setIsDetailConversationOpen] = useState(false);
 
+    const [isConversationsLoaded, setIsConversationsLoaded] = useState(false);
+    const [subscribedConversationDestinations, setSubscribedConversationDestinations] = useState([]);
+
     const connect = () => {
-        disconnect();
-        if (curSenderUsername) {
-            console.log("Connect WS");
+        console.log("Connect WS");
 
-            const wsUrl = `${ORIGINAL_API_URL}/ws`;
-            const socket = new SockJS(wsUrl);
-            stompClient = over(socket);
+        const wsUrl = `${ORIGINAL_API_URL}/ws`;
+        const socket = new SockJS(wsUrl);
+        stompClient = over(socket);
 
-            stompClient.connect({}, onConnected, onError);
-        }
+        stompClient.connect({}, onConnected, onError);
     };
 
     const disconnect = () => {
-        if (stompClient !== null) {
-            stompClient.disconnect();
+        if (stompClient && stompClient.connected) {
+            stompClient.disconnect(() => {
+                console.log("Disconnected");
+            });
+        } else {
+            console.log("No active connection to disconnect");
         }
-        console.log("Disconnected");
     };
 
     const onConnected = (frame) => {
-        console.log('onConnected function: ' + frame);
+        debugger
+        console.log('WebSocket connection established: ' + frame);
 
-        if (stompClient && stompClient.connected) {
-            subscribeTopics();
-            sendUserJoinMessage();
+        if (stompClient.connected) {
+            subscribeDefaultTopics();
+            resubscribeToConversationTopics();
+            addUserToServer();
         }
     };
 
-    const subscribeTopics = () => {
-        const receivingDest = getReceivingDestination();
-        console.log("Receiving destination: " + receivingDest);
-        stompClient.subscribe(receivingDest, onMessageReceived);
-
+    const subscribeDefaultTopics = () => {
         const onlineUsersDest = getOnlineUsersDestination();
         console.log("Online users destination: " + onlineUsersDest);
         stompClient.subscribe(onlineUsersDest, onOnlineUsersReceived);
-    }
 
-    const onMessageReceived = (payload) => {
-        console.log('onMessageReceived function');
-
-        const chatMessage = JSON.parse(payload.body);
-        console.log('Received message:', chatMessage);
-
-        addToMessageArea(chatMessage);
+        const newConversationDest = getNewConversationDestination();
+        console.log("New conversation destination: " + newConversationDest);
+        stompClient.subscribe(newConversationDest, onNewConversationReceived);
     }
 
     const onOnlineUsersReceived = (payload) => {
+        debugger
         console.log('onOnlineUsersReceived function');
         const onlineUsernames = JSON.parse(payload.body);
         console.log("Online usernames: " + onlineUsernames);
+        updateOnlineStatus(onlineUsernames);
+    };
 
+    const updateOnlineStatus = (onlineUsernames) => {
         const newConversations = curConversations.map(item => {
             if (onlineUsernames.includes(item?.name)) {
                 return { ...item, isOnline: true };
             } else {
                 return { ...item, isOnline: false };
             }
-        })
+        });
         setCurConversations(newConversations);
         setCurSearchedConversations(newConversations);
     }
 
-    const sendUserJoinMessage = () => {
-        if (curSenderUsername) {
-            const chatMessage = {
-                content: `\`${curSenderUsername}\` joined!`,
-                type: 'NOTIFICATION',
-                sendingTime: new Date().getTime(),
-                senderUsername: curSenderUsername,
-                conversationId: curConversation?.id
-            }
-            const addingUserDest = getAddingUserDestination();
-            stompClient.send(addingUserDest, {}, JSON.stringify(chatMessage));
-        }
+    const onNewConversationReceived = (payload) => {
+        console.log('onNewConversationReceived function');
+        const conversation = JSON.parse(payload.body);
+
+        const newConversations = curConversations.map(prevConversations => [...prevConversations, conversation]);
+
+        setCurConversations(newConversations);
+        setCurSearchedConversations(newConversations);
     }
 
-    const onError = (error) => {
-        console.log(error);
+    const addUserToServer = () => {
+        debugger
+        console.log(`Add an user: ${curSenderUsername}`);
+        const addingUserDest = getAddingUserDestination();
+        stompClient.send(addingUserDest, {}, '');
     };
 
-    const getReceivingDestination = () => {
-        return `/topic/messages/${curConversation?.id}`;
-    }
+    const onError = (error) => {
+        debugger
+        console.error('WebSocket connection error:', error);
+    };
+
+    const resubscribeToConversationTopics = () => {
+        const newDestinations = curConversations
+            .map((conversation) => getReceivingDestination(conversation.id));
+
+        unsubscribeAllConversationTopics();
+
+        newDestinations.forEach((newDest) => {
+            subscribeToConversationTopic(newDest, onMessageReceived);
+        });
+        console.log("Subscribe to conversation topics");
+        debugger
+    };
+
+    const onMessageReceived = (payload) => {
+        console.log('onMessageReceived function');
+
+        const chatMessage = JSON.parse(payload.body);
+        console.log('Received message: ', chatMessage);
+
+        updateLastMessage(chatMessage);
+
+        if (chatMessage.conversationId === curConversation.id) {
+            addToMessageArea(chatMessage);
+        }
+    };
+
+    const updateLastMessage = (lastMessage) => {
+        debugger
+        const lastMessageId = lastMessage.conversationId;
+        const updatedConversations = curConversations.map(item => {
+            if (item.id === lastMessageId) {
+                const updatedItem = { ...item, lastMessageDTO: lastMessage };
+                return updatedItem;
+            }
+            return item;
+        });
+
+        const conversationIndex = updatedConversations.findIndex(item => item.id === lastMessageId);
+        if (conversationIndex !== -1) {
+            const movedConversation = updatedConversations.splice(conversationIndex, 1)[0];
+            updatedConversations.unshift(movedConversation);
+        }
+        debugger
+
+        setCurConversations(updatedConversations);
+        setCurSearchedConversations(updatedConversations);
+        debugger
+    };
+
+    const subscribeToConversationTopic = (destination, callback) => {
+        const isSubscribed = subscribedConversationDestinations.some(subscribedDestination =>
+            subscribedDestination.destination === destination);
+        if (!isSubscribed) {
+            const subscription = stompClient.subscribe(destination, callback);
+            const newDestination = {id: subscription.id, destination: destination};
+            setSubscribedConversationDestinations((prevDestinations) =>
+                [...prevDestinations, newDestination]);
+        }
+    };
+
+    const unsubscribeAllConversationTopics = () => {
+        debugger
+        subscribedConversationDestinations.forEach((subscribedDest, index) => {
+            stompClient.unsubscribe(subscribedDest?.id);
+        })
+        setSubscribedConversationDestinations([]);
+        console.log("Unsubscribed from all topics");
+    };
+
+    const getNewConversationDestination = () => {
+        return `/topic/newConversation`;
+    };
+
+    const getReceivingDestination = (conversationId) => {
+        return `/topic/messages/${conversationId}`;
+    };
 
     const getSendingDestination = () => {
         return `/app/chat.sendMessage`;
-    }
+    };
 
     const getAddingUserDestination = () => {
         return `/app/chat.addUser/${curSenderUsername}`;
-    }
+    };
 
     const getOnlineUsersDestination = () => {
         return `/topic/online-users`;
-    }
+    };
 
     const fetchConversations = async () => {
         setDisplayConversationSpinner(true);
@@ -131,33 +208,49 @@ const ChatPage = () => {
             const restUrl = `${ORIGINAL_API_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
             const response = await fetch(restUrl);
             const conversations = await response.json();
-            if (conversations?.length > 0) {
-                conversations[0].isSelected = true;
-                handleConversationItemClick(conversations[0]);
+            const updatedConversations = conversations.map(item =>
+                ({...item, isOnline: false, isSelected: false}));
+
+            if (updatedConversations?.length > 0) {
+                handleConversationItemClick(updatedConversations[0]);
             }
-            setCurConversations(conversations);
-            setCurSearchedConversations(conversations);
+
+            setCurConversations(updatedConversations);
+            setCurSearchedConversations(updatedConversations);
+            setIsConversationsLoaded(true);
+
+            setDisplayConversationSpinner(false);
         } catch (error) {
             console.error("Error fetching conversations:", error);
-        } finally {
-            setDisplayConversationSpinner(false);
         }
     };
 
     const fetchChatMessages = async (conversationId) => {
         setDisplayMessageSpinner(true);
         try {
-            const response = await fetch(`${ORIGINAL_API_URL}/api/messages/get-messages?conversationId=${conversationId}`);
+            const restUrl =`${ORIGINAL_API_URL}/api/messages/get-messages?conversationId=${conversationId}`;
+            const response = await fetch(restUrl);
             const chatMessages = await response.json();
             setCurChatMessages(chatMessages);
+            setDisplayMessageSpinner(false);
         } catch (error) {
             console.error("Error fetching conversations:", error);
-        } finally {
-            setDisplayMessageSpinner(false);
+        }
+    };
+
+    const fetchOnlineUsers = async () => {
+        try {
+            const restUrl = `${ORIGINAL_API_URL}/api/users/get-online-users`;
+            const response = await fetch(restUrl);
+            const onlineUsernames = await response.json();
+            updateOnlineStatus(onlineUsernames);
+        } catch (error) {
+            console.error("Error fetching conversations:", error);
         }
     };
 
     const sendToServer = (chatMessage) => {
+        debugger
         if (stompClient) {
             const sendingDest = getSendingDestination();
             stompClient.send(sendingDest, {}, JSON.stringify(chatMessage));
@@ -186,33 +279,44 @@ const ChatPage = () => {
     const handleConversationItemClick = (conversation) => {
         console.log(`On click conversation item: ${conversation}`);
         const newConversationId = conversation?.id;
-        if (newConversationId === curConversation?.id) {
-            return;
-        }
+        debugger
         setCurConversation(conversation);
         console.log(`After setCurConversation: ${curConversation?.id}`);
 
+        updateSelectedItem(newConversationId);
+    };
+
+    const updateSelectedItem = (conversationId) => {
         const newConversations = curConversations.map(item => {
-            if (item.id === newConversationId) {
+            if (item.id === conversationId) {
                 return { ...item, isSelected: true };
-            } else {
-                return { ...item, isSelected: false };
             }
+            return { ...item, isSelected: false };
         });
         setCurConversations(newConversations);
         setCurSearchedConversations(newConversations);
-    };
+    }
 
     useEffect(() => {
         if (curSenderUsername) {
             fetchConversations();
         }
-    }, [curSenderUsername]);
+    }, []);
+
+    useEffect(() => {
+        if (isConversationsLoaded && curSenderUsername) {
+            connect();
+            fetchOnlineUsers();
+        }
+
+        return () => {
+            disconnect();
+        };
+    }, [curSenderUsername, isConversationsLoaded]);
 
     useEffect(() => {
         if (curConversation) {
             fetchChatMessages(curConversation?.id);
-            connect();
         }
     }, [curConversation]);
 

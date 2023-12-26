@@ -84,6 +84,10 @@ const ConversationItem = ({
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                     <time dateTime={lastSendingTime}>{timeAgo}</time>
                 </p>
+                {conversation.unreadMessages !== 0 && (
+                    <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1
+                    text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">{conversation.unreadMessages}</span>
+                )}
             </div>
         </li>
     )
