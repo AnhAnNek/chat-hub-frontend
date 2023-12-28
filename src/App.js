@@ -7,6 +7,7 @@ import AddPrivateConversationPage from "./components/AddPrivateConversationPage/
 import AddGroupPage from "./components/AddGroupPage/AddGroupPage";
 import ForgotPasswordPage from "./components/LoginPage/ForgotPasswordPage";
 import Error404Page from "./components/Error404Page";
+import TestAccountPage from "./components/LoginPage/TestAccountPage";
 
 function App() {
     return (
@@ -18,6 +19,7 @@ function App() {
                 <Route path="/chat-page" element={<ChatPage />} />
                 <Route path="/add-private-conversation-page" element={<AddPrivateConversationPage />} />
                 <Route path="/add-group-page" element={<AddGroupPage />} />
+                <Route path="/accouts" element={<TestAccountPage />} />
                 <Route
                     index
                     element={<Navigate to="/login" replace />}
