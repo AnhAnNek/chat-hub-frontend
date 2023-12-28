@@ -5,6 +5,7 @@ import {faEye, faEyeSlash, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import CustomModal from "../CustomModal";
 import {ORIGINAL_API_URL} from "../../utils/base";
 import {useAuthentication} from "../../hooks/useAuthentication";
+import axios from "axios";
 
 const LoginPage = () => {
     useAuthentication();
@@ -30,18 +31,17 @@ const LoginPage = () => {
     const login = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${ORIGINAL_API_URL}/api/login/login-process`, {
-                method: 'POST',
+            const restUrl = `${ORIGINAL_API_URL}/api/login/login-process`;
+            const response = await axios.post(restUrl, {
+                username: username,
+                plainPass: password,
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username: username,
-                    plainPass: password,
-                }),
             });
 
-            if (response.ok) {
+            if (response.status === 200) {
                 console.log('Login successful');
                 sessionStorage.setItem("username", username);
                 setIsLoading(true);
