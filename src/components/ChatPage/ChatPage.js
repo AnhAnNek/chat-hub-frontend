@@ -8,18 +8,16 @@ import ConversationDetailsSlide from "./ConversationDetailsSlide/ConversationDet
 import ConversationList from "./ConversationList";
 import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
-import {useAuthentication} from "../../hooks/useAuthentication";
 import {ORIGINAL_API_URL} from "../../utils/base";
-import axios from "axios";
+import ConversationService from "../../api/conversationService";
+import MessageService from "../../api/messageService";
+import UserService from "../../api/userService";
+import {useAuth} from "../../contexts/AuthContext";
 
 const AT_LEAST_CHARACTERS = 4;
 let stompClient = null;
 
-
 const ChatPage = () => {
-    useAuthentication();
-
-    const curSenderUsername = sessionStorage.getItem("username");
 
     const ChangeTypes = {
         UNCHANGED: 'UNCHANGED',
@@ -29,6 +27,8 @@ const ChatPage = () => {
         MOVE_ITEM_TO_TOP: 'MOVE_ITEM_TO_TOP',
         UPDATE_MEMBER_STATUS: 'UPDATE_MEMBER_STATUS'
     }
+
+    const { auth } = useAuth();
 
     const [curConversations, setCurConversations] = useState([]);
     const [typeChangeOfConversations, setTypeChangeOfConversations] = useState(ChangeTypes.UNCHANGED);
@@ -110,7 +110,7 @@ const ChatPage = () => {
     }
 
     const addUserToServer = () => {
-        console.log(`Add an user: ${curSenderUsername}`);
+        console.log(`Add an user: ${auth.username}`);
         const addingUserDest = getAddingUserDestination();
         stompClient.send(addingUserDest, {}, '');
     };
@@ -132,7 +132,6 @@ const ChatPage = () => {
     };
 
     const onMessageReceived = (payload) => {
-        debugger
         console.log('onMessageReceived function');
 
         const chatMessage = JSON.parse(payload.body);
@@ -146,7 +145,6 @@ const ChatPage = () => {
     };
 
     const updateLastMessage = (lastMessage) => {
-        debugger
         const lastMessageId = lastMessage.conversationId;
 
         const updatedConversations = [ ...curConversations ];
@@ -194,7 +192,7 @@ const ChatPage = () => {
     };
 
     const getAddingUserDestination = () => {
-        return `/app/chat.addUser/${curSenderUsername}`;
+        return `/app/chat.addUser/${auth.username}`;
     };
 
     const getOnlineUsersDestination = () => {
@@ -204,13 +202,10 @@ const ChatPage = () => {
     const fetchConversations = async () => {
         setDisplayConversationSpinner(true);
         try {
-            const restUrl = `${ORIGINAL_API_URL}/api/conversations/get-conversations?username=${curSenderUsername}`;
-            const response = await axios.get(restUrl);
-            const conversations = response.data;
+            const conversations = await ConversationService.getConversations(auth.accessToken, auth.username);
             const updatedConversations = conversations.map(item =>
                 ({...item, isOnline: false, isSelected: false}));
 
-            debugger
             setCurConversations(updatedConversations);
             setTypeChangeOfConversations(ChangeTypes.INITIALIZED);
 
@@ -224,9 +219,7 @@ const ChatPage = () => {
     const fetchChatMessages = async (conversationId) => {
         setDisplayMessageSpinner(true);
         try {
-            const restUrl =`${ORIGINAL_API_URL}/api/messages/get-messages?conversationId=${conversationId}`;
-            const response = await axios.get(restUrl);
-            const chatMessages = response.data;
+            const chatMessages = await MessageService.getMessages(auth.accessToken, conversationId);
             setCurChatMessages(chatMessages);
             setDisplayMessageSpinner(false);
         } catch (error) {
@@ -237,9 +230,7 @@ const ChatPage = () => {
 
     const fetchOnlineUsers = async () => {
         try {
-            const restUrl = `${ORIGINAL_API_URL}/api/users/get-online-users`;
-            const response = await axios.get(restUrl);
-            const onlineUsernames = response.data;
+            const onlineUsernames = await UserService.getOnlineUsers(auth.accessToken);
             updateOnlineStatus(onlineUsernames);
         } catch (error) {
             console.error("Error fetching conversations:", error);
@@ -247,7 +238,6 @@ const ChatPage = () => {
     };
 
     const sendToServer = (chatMessage) => {
-        debugger
         if (stompClient) {
             const sendingDest = getSendingDestination();
             stompClient.send(sendingDest, {}, JSON.stringify(chatMessage));
@@ -273,14 +263,13 @@ const ChatPage = () => {
         // setCurSearchedConversations(searchedConversations);
     };
 
-    const onClickConversationItem = (conversation) => {
-        debugger
+    const onClickConversationItem = async (conversation) => {
         console.log(`On click conversation item: ${conversation}`);
         const newConversationId = conversation?.id;
         if (newConversationId === selectedConversation?.id) {
             return;
         }
-        const updatedConversation = updateSelectedItem(newConversationId);
+        const updatedConversation = await updateSelectedItem(newConversationId);
         setSelectedConversation(JSON.parse(JSON.stringify(updatedConversation)));
     };
 
@@ -294,18 +283,17 @@ const ChatPage = () => {
         setCurConversations(updatedConversations);
         setTypeChangeOfConversations(ChangeTypes.UPDATE_MEMBER_STATUS);
 
-        debugger
         return updatedConversations.find(item => item.isSelected);
     }
 
-    useEffect(() => {
-        if (curSenderUsername) {
+    useEffect( () => {
+        if (auth.username) {
             fetchConversations();
         }
-    }, []);
+    }, [auth]);
 
     const initConnection = () => {
-        if (curSenderUsername) {
+        if (auth.username) {
             connect();
             fetchOnlineUsers();
         }
@@ -318,7 +306,6 @@ const ChatPage = () => {
     useEffect(() => {
         // setCurSearchedConversations(curConversations);
 
-        debugger
         switch (typeChangeOfConversations) {
             case ChangeTypes.INITIALIZED:
                 initConnection();
@@ -335,7 +322,6 @@ const ChatPage = () => {
             case ChangeTypes.MOVE_ITEM_TO_TOP:
                 break;
             case ChangeTypes.UPDATE_MEMBER_STATUS:
-                debugger
                 break;
         }
 
@@ -353,7 +339,7 @@ const ChatPage = () => {
             <div className="w-full md:w-1/4 bg-gray-100 h-screen flex flex-col">
                 <div className="flex-shrink-0 p-5">
                     <ConversationHeader
-                        username={curSenderUsername}
+                        username={auth.username}
                         onDisconnect={disconnect}
                     />
                     <ConversationSearchBar onSearch={onSearch}/>
@@ -376,14 +362,14 @@ const ChatPage = () => {
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     <MessageArea
-                        curSenderUsername={curSenderUsername}
+                        curSenderUsername={auth.username}
                         chatMessages={curChatMessages}
                         displaySpinner={displayMessageSpinner}
                     />
                 </div>
                 <div className="shrink-0">
                     <MessageInputTool
-                        curUsername={curSenderUsername}
+                        curUsername={auth.username}
                         curConversationId={selectedConversation?.id}
                         sendToServer={sendToServer}
                     />

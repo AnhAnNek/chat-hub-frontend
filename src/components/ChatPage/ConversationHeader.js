@@ -2,16 +2,16 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faUsers, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import {useNavigate} from "react-router-dom";
-import useLogin from "../../hooks/useLogin";
+import {useAuth} from "../../contexts/AuthContext";
 
 const ConversationHeader = ({ username, onDisconnect }) => {
     const navigate = useNavigate();
 
-    const { logout } = useLogin();
+    const Auth = useAuth();
 
     const onLogout = () => {
         onDisconnect();
-        logout();
+        Auth.userLogout();
         navigate('/login');
     };
 

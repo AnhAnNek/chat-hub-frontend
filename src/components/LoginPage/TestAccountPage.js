@@ -1,22 +1,21 @@
 import {useEffect, useState} from "react";
-import {ORIGINAL_API_URL} from "../../utils/base";
-import axios from "axios";
-import useLogin from "../../hooks/useLogin";
 import LoadingButton from "./LoadingButton";
 import {useNavigate} from "react-router-dom";
 import Header from "../Header";
+import AuthService from "../../api/authService";
+import UserService from "../../api/userService";
+import {useAuth} from "../../contexts/AuthContext";
 
 const TestAccountPage = () => {
     const navigate = useNavigate();
 
-    const { login, isLoading, setLoading } = useLogin();
+    const Auth = useAuth();
+
     const [users, setUsers] = useState([]);
 
     const fetchUsers = async () => {
         try {
-            const restUrl = `${ORIGINAL_API_URL}/api/users/get-all`;
-            const response = await axios.get(restUrl);
-            const users = response.data;
+            const users = await UserService.getAll();
             setUsers(users);
         } catch (error) {
             console.log(error);
@@ -24,13 +23,13 @@ const TestAccountPage = () => {
     }
 
     const onLoginForEachItem = async (username, plainPass = '123456') => {
-        const loginSuccessful = await login(username, plainPass);
+        try {
+            const auth = await AuthService.login(username, plainPass);
 
-        if (loginSuccessful) {
-            setTimeout(() => {
-                setLoading(false);
-                navigate('/chat-page');
-            }, 1000);
+            Auth.userLogin(auth);
+            navigate('/chat-page');
+        } catch (err) {
+            console.error(err.message);
         }
     }
 
@@ -62,7 +61,7 @@ const TestAccountPage = () => {
                                 <LoadingButton
                                     content={'Login'}
                                     onClick={() => onLoginForEachItem(user.username)}
-                                    isLoading={isLoading}
+                                    isLoading={false}
                                 />
                             </td>
                         </tr>

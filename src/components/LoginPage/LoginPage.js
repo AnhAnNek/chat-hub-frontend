@@ -1,24 +1,24 @@
 import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {Navigate, useNavigate} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import CustomModal from "../CustomModal";
-import {useAuthentication} from "../../hooks/useAuthentication";
-import useLogin from "../../hooks/useLogin";
 import LoadingButton from "./LoadingButton";
+import AuthService from "../../api/authService";
+import {useAuth} from "../../contexts/AuthContext";
 
 const LoginPage = () => {
-    useAuthentication();
-
     const navigate = useNavigate();
 
-    const { login, isLoading, setLoading } = useLogin();
+    const Auth = useAuth();
+    const isAuthenticated = Auth.userIsAuthenticated();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const openModal = (errorMessage) => {
         setErrorMessage(errorMessage);
@@ -31,17 +31,24 @@ const LoginPage = () => {
 
     const onLogin = async (e) => {
         e.preventDefault();
-        const loginSuccessful = await login(username, password);
+        setIsLoading(true);
+        try {
+            const auth = await AuthService.login(username, password);
 
-        if (loginSuccessful) {
+            Auth.userLogin(auth);
             setTimeout(() => {
-                setLoading(false);
+                setIsLoading(false);
                 navigate('/chat-page');
             }, 1000);
-        } else {
-            openModal('Your username or password is incorrect. Please try again.');
+        } catch (err) {
+            setIsLoading(false);
+            openModal(err.message);
         }
     };
+    
+    if (isAuthenticated) {
+        return <Navigate to="/chat-page" />;
+    }
 
     return (
         <div>
@@ -125,8 +132,6 @@ const LoginPage = () => {
                     </p>
                 </div>
             </div>
-
-
 
             {isModalOpen && (
                 <CustomModal

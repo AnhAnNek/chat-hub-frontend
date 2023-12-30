@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { Dialog, Popover } from '@headlessui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
-import {useAuthentication} from "../hooks/useAuthentication";
 import {useNavigate} from "react-router-dom";
-import useLogin from "../hooks/useLogin";
+import {useAuth} from "../contexts/AuthContext";
 
 const Header = () => {
     const navigate = useNavigate();
 
+    const Auth = useAuth();
+    const isAuthenticated = Auth.userIsAuthenticated();
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-    const { logout, isLogin } = useLogin();
-
     const onLogout = () => {
-        logout();
+        Auth.userLogout();
         navigate('/login');
     };
 
@@ -48,7 +48,7 @@ const Header = () => {
                     </a>
                 </Popover.Group>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    {isLogin ? (
+                    {isAuthenticated ? (
                         <a href="#" className="text-sm font-semibold leading-6 text-gray-900" onClick={onLogout}>
                             Log out <span aria-hidden="true">&larr;</span>
                         </a>
@@ -95,7 +95,7 @@ const Header = () => {
                                 </a>
                             </div>
                             <div className="py-6">
-                                {isLogin ? (
+                                {isAuthenticated ? (
                                     <a
                                         href="#"
                                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
