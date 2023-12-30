@@ -50,12 +50,14 @@ const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
 
     return (
         <div className="relative h-full">
-            <ul className="border rounded h-full p-2 overflow-y-auto overflow-x-hidden"
+            <ul className="border rounded h-full p-2 relative overflow-y-auto overflow-x-hidden"
                 ref={messageAreaRef}
             >
-                {displaySpinner ? (
-                    <LoadingSpinner loadingTitle={"Messages..."} />
-                ) : (
+                {displaySpinner && (
+                    <LoadingSpinner loadingTitle={"Messages..."}
+                                    optionalClassName="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                )}
+                {
                     chatMessages.map((chatMessage) => (
                         <MessageItem
                             key={chatMessage?.id}
@@ -63,7 +65,7 @@ const MessageArea = ({ curSenderUsername, chatMessages, displaySpinner }) => {
                             chatMessage={chatMessage}
                         />
                     ))
-                )}
+                }
             </ul>
             {showScrollButton && (
                 <button

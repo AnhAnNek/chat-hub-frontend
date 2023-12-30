@@ -2,13 +2,16 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faUsers, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../contexts/AuthContext";
 
 const ConversationHeader = ({ username, onDisconnect }) => {
     const navigate = useNavigate();
 
-    const logout = () => {
+    const Auth = useAuth();
+
+    const onLogout = () => {
         onDisconnect();
-        sessionStorage.clear();
+        Auth.userLogout();
         navigate('/login');
     };
 
@@ -31,7 +34,7 @@ const ConversationHeader = ({ username, onDisconnect }) => {
                         <FontAwesomeIcon icon={faUsers} />
                     </a>
 
-                    <FontAwesomeIcon icon={faArrowRightFromBracket} onClick={logout}/>
+                    <FontAwesomeIcon icon={faArrowRightFromBracket} onClick={onLogout}/>
                 </div>
             </div>
         </div>

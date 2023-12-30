@@ -19,19 +19,6 @@ const ConversationItem = ({
 
     const [timeAgo, setTimeAgo] = useState(calculateTimeAgo(lastSendingTime));
 
-    useEffect(() => {
-        if (!conversation) {
-            console.error("conversation is null");
-            return;
-        }
-
-        const interval = setInterval(() => {
-            setTimeAgo(calculateTimeAgo(lastSendingTime));
-        }, 60000);
-
-        return () => clearInterval(interval);
-    }, []);
-
     function calculateTimeAgo(timestamp) {
         const now = new Date();
         const sentTime = new Date(timestamp);
@@ -52,6 +39,14 @@ const ConversationItem = ({
             return `${days} ${days === 1 ? 'day' : 'days'} ago`
         }
     }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimeAgo(calculateTimeAgo(lastSendingTime));
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <li id={conversationId}

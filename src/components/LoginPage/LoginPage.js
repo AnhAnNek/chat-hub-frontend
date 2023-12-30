@@ -1,22 +1,24 @@
 import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {Navigate, useNavigate} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faEye, faEyeSlash, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import CustomModal from "../CustomModal";
-import {ORIGINAL_API_URL} from "../../utils/base";
-import {useAuthentication} from "../../hooks/useAuthentication";
+import LoadingButton from "./LoadingButton";
+import AuthService from "../../api/authService";
+import {useAuth} from "../../contexts/AuthContext";
 
 const LoginPage = () => {
-    useAuthentication();
-
     const navigate = useNavigate();
+
+    const Auth = useAuth();
+    const isAuthenticated = Auth.userIsAuthenticated();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [username, setUsername] = useState('vanannek');
-    const [password, setPassword] = useState('123456');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const openModal = (errorMessage) => {
         setErrorMessage(errorMessage);
@@ -27,37 +29,26 @@ const LoginPage = () => {
         setIsModalOpen(false);
     };
 
-    const login = async (e) => {
+    const onLogin = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
-            const response = await fetch(`${ORIGINAL_API_URL}/api/login/login-process`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: username,
-                    plainPass: password,
-                }),
-            });
+            const auth = await AuthService.login(username, password);
 
-            if (response.ok) {
-                console.log('Login successful');
-                sessionStorage.setItem("username", username);
-                setIsLoading(true);
-
-                setTimeout(() => {
-                    setIsLoading(false);
-                    navigate("/chat-page");
-                }, 1000);
-            } else {
-                openModal('Your username or password is incorrect. Please try again.');
-            }
-        } catch (error) {
-            console.error('Login failed', error);
-            openModal('An error occurred while logging in. Please try again.');
+            Auth.userLogin(auth);
+            setTimeout(() => {
+                setIsLoading(false);
+                navigate('/chat-page');
+            }, 1000);
+        } catch (err) {
+            setIsLoading(false);
+            openModal(err.message);
         }
     };
+    
+    if (isAuthenticated) {
+        return <Navigate to="/chat-page" />;
+    }
 
     return (
         <div>
@@ -124,25 +115,7 @@ const LoginPage = () => {
                         </div>
                     </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            onClick={login}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <>
-                                    <FontAwesomeIcon icon={faSpinner} size="xl" spin style={{color: "#ffffff",}}/>
-                                    <span className="ml-2">Login...</span>
-                                </>
-                            ) : (
-                                <>
-                                    Login
-                                </>
-                            )}
-                        </button>
-                    </div>
+                    <LoadingButton content={'Login'} onClick={onLogin} isLoading={isLoading} />
 
                     <p className="mt-10 text-center text-sm text-gray-500">
                         Not a member?{' '}
@@ -150,10 +123,15 @@ const LoginPage = () => {
                             Register
                         </a>
                     </p>
+
+                    <p className="mt-10 text-center text-sm text-gray-500">
+                        If you were a developer?{' '}
+                        <a href="/accouts" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+                            Accounts
+                        </a>
+                    </p>
                 </div>
             </div>
-
-
 
             {isModalOpen && (
                 <CustomModal
