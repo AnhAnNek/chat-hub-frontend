@@ -1,36 +1,37 @@
 version: "3.8"
 
 services:
-    chat-hub-db:
-        image: postgres:latest
-        container_name: chat-hub-db
-        environment:
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: root
-            POSTGRES_DB: chat-hub-db
-        ports:
-            - "5432:5432"
-        volumes:
-            - chat-hub-data:/var/lib/postgresql
+  chat-hub-db:
+    image: postgres:latest
+    container_name: chat-hub-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: chat-hub-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - chat-hub-data:/var/lib/postgresql
 
-    chat-hub-api:
-        image: vananne/chat-hub-backend:latest
-        depends_on:
-            - chat-hub-db
-        container_name: chat-hub-api
-        ports:
-            - "8000:8000"
-        environment:
-            PROD_DB_HOST: chat-hub-db
-            PROD_DB_PORT: 5432
-            PROD_DB_NAME: chat-hub-db
-            PROD_DB_USER: root
-            PROD_DB_PASSWORD: root
-            SPRING_PROFILES_ACTIVE: default
+  chat-hub-api:
+    image: vananne/chat-hub-backend:latest
+    depends_on:
+      - chat-hub-db
+    container_name: chat-hub-api
+    ports:
+      - "8000:8000"
+    environment:
+      PROD_DB_HOST: chat-hub-db
+      PROD_DB_PORT: 5432
+      PROD_DB_NAME: chat-hub-db
+      PROD_DB_USER: root
+      PROD_DB_PASSWORD: root
+      PROD_FRONTEND_URL: http://localhost:3000/
+      SPRING_PROFILES_ACTIVE: default
 
 networks:
-    chat-hub-network:
-        driver: bridge
+  chat-hub-network:
+    driver: bridge
 
 volumes:
-    chat-hub-data:
+  chat-hub-data:
