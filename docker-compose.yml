@@ -27,6 +27,7 @@ services:
       PROD_DB_USER: root
       PROD_DB_PASSWORD: root
       PROD_FRONTEND_URL: http://localhost:3000/
+      PROD_BASE_URL: https://chat-hub-backend-87285e5a73b9.herokuapp.com
       SPRING_PROFILES_ACTIVE: default
 
 networks:
